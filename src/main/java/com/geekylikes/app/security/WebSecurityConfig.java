@@ -1,5 +1,6 @@
 package com.geekylikes.app.security;
 
+import com.geekylikes.app.security.jwt.AuthTokenFilter;
 import com.geekylikes.app.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
