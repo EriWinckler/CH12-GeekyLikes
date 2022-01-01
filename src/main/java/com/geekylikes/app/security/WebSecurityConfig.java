@@ -27,6 +27,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     UserDetailsServiceImpl userDetailsService;
 
+    //this is used just to stop the auto reroute to log in if someone is
+    // unauthorized
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
