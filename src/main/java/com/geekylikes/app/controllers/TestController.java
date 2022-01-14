@@ -1,13 +1,15 @@
 package com.geekylikes.app.controllers;
 
+import com.geekylikes.app.payloads.api.response.Article;
 import com.geekylikes.app.payloads.api.response.NewsResponse;
-import com.sun.xml.bind.v2.TODO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -51,8 +53,9 @@ public class TestController {
 
         return ResponseEntity.ok(response.getArticles());
     }
-    
+
 //    @GetMapping("/newsCategory/{category}")
 //    public ResponseEntity<?> getArticlesByCategory() {
+//
 //    }
 }

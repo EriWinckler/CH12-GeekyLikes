@@ -1,17 +1,19 @@
+// Developer findByUser_id()
+
 package com.geekylikes.app.models.auth;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-//defining the table so spring does not do it automatically
 @Table( name = "users",
         uniqueConstraints = {
-        @UniqueConstraint(columnNames = "username")
+            @UniqueConstraint(columnNames = "username")
         })
 public class User {
     @Id
@@ -23,16 +25,17 @@ public class User {
     private String username;
 
     @NotBlank
-    @Size(min = 5, max = 100)
+    @Size(min=5, max=100)
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable( name = "user_roles",
-                joinColumns = @JoinColumn(name = "user_id"),
-                inverseJoinColumns = @JoinColumn(name = "role_id"))
+                joinColumns = @JoinColumn(name="user_id"),
+                inverseJoinColumns = @JoinColumn(name="role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    public User() {}
+    public User() {
+    }
 
     public User(String username, String password) {
         this.username = username;

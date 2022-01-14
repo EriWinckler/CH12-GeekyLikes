@@ -1,6 +1,7 @@
 package com.geekylikes.app.security.services;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.geekylikes.app.models.auth.ERole;
 import com.geekylikes.app.models.auth.Role;
 import com.geekylikes.app.models.auth.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,7 +23,6 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private String password;
 
-    //as long as object have what item says it authorizes
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
@@ -32,10 +32,8 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
-    //spring need this
     public static UserDetailsImpl build(User user) {
-        List<GrantedAuthority> authorities = user.getRoles()
-                .stream()
+        List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
 
@@ -57,16 +55,6 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
-
-    @Override
     public boolean isAccountNonExpired() {
         return true;
     }
@@ -83,14 +71,24 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(this == obj)
+        if (this == obj)
             return true;
-        if(obj == null || getClass() != obj.getClass())
+        if (obj == null || getClass() != obj.getClass())
             return false;
         UserDetailsImpl user = (UserDetailsImpl) obj;
         return Objects.equals(id, user.id);

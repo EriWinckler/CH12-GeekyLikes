@@ -17,31 +17,31 @@ import java.util.Optional;
 @RequestMapping("/api/languages")
 public class LanguageController {
 
-    @Autowired
-    private LanguageRepository repository;
+  @Autowired
+  private LanguageRepository repository;
 
-    @GetMapping
-    public List<Language> getAll() {
-        return repository.findAll();
+  @GetMapping
+  public List<Language> getAll() {
+    return repository.findAll();
+  }
+
+  // use findbyid().orelsethrow normally
+  @GetMapping("/{id}")
+  public ResponseEntity<Language> getById(@PathVariable Long id) {
+    Optional<Language> language = repository.findById(id);
+
+    if(language.isEmpty()) {
+      return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
-    // use findbyid().orelsethrow normally
-    @GetMapping("/{id}")
-    public ResponseEntity<Language> getById(@PathVariable Long id) {
-        Optional<Language> language = repository.findById(id);
+    return new ResponseEntity<>(language.get(), HttpStatus.OK);
+  }
 
-        if(language.isEmpty()) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+  @PostMapping
+  @PreAuthorize("hasRole('Admin')")
+  public Language createOne(@RequestBody Language newLanguage) {
+    return repository.save(newLanguage);
+  }
 
-        return new ResponseEntity<>(language.get(), HttpStatus.OK);
-    }
-
-    @PostMapping
-    @PreAuthorize("hasRole('Admin')")
-    public Language createOne(@RequestBody Language newLanguage) {
-        return repository.save(newLanguage);
-    }
-
-
+  //TODO delete language - Caveat foreign key exception with Users.
 }

@@ -8,8 +8,7 @@ public class JwtResponse {
     private String username;
     private List<String> roles;
 
-    public JwtResponse(String token, Long id, String username,
-                       List<String> roles) {
+    public JwtResponse(String token, Long id, String username, List<String> roles) {
         this.token = token;
         this.id = id;
         this.username = username;

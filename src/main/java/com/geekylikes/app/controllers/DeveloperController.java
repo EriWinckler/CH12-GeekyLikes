@@ -8,11 +8,15 @@ import com.geekylikes.app.models.language.Language;
 import com.geekylikes.app.repositories.AvatarRepository;
 import com.geekylikes.app.repositories.DeveloperRepository;
 import com.geekylikes.app.repositories.GeekoutRepository;
+import com.geekylikes.app.repositories.UserRepository;
+import com.geekylikes.app.security.services.UserDetailsImpl;
 import com.geekylikes.app.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -57,6 +61,7 @@ public class DeveloperController {
     @GetMapping("/self")
     public @ResponseBody Developer getSelf() {
         User currentUser = userService.getCurrentUser();
+
         if (currentUser == null) {
             return null;
         }
@@ -74,24 +79,25 @@ public class DeveloperController {
 
         User currentUser = userService.getCurrentUser();
 
-        if(currentUser == null) {
+        if (currentUser == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
+
+        //TODO add check for existing developer profile.
         newDeveloper.setUser(currentUser);
 
         return new ResponseEntity<>(repository.save(newDeveloper), HttpStatus.CREATED);
     }
 
     @PostMapping("/photo")
-    public Developer addPhoto(@RequestBody Developer dev) {
+    public Developer addPhoto(@RequestBody Developer dev) { // TODO refactor dev to updates
         User currentUser = userService.getCurrentUser();
 
-        if(currentUser == null) {
+        if (currentUser == null) {
             return null;
         }
 
-        Developer developer =
-                repository.findByUser_id(dev.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Developer developer = repository.findByUser_id(currentUser.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         // check if developer has an avatar and if so, delete or modify existing avatar before creating new.
         if (developer.getAvatar() != null) {
             Avatar avatar = developer.getAvatar();
@@ -109,12 +115,10 @@ public class DeveloperController {
     public Developer addLanguage(@RequestBody List<Language> updates) {
         User currentUser = userService.getCurrentUser();
 
-        if(currentUser == null) {
+        if (currentUser == null) {
             return null;
         }
-
-        Developer developer =
-                repository.findByUser_id(currentUser.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Developer developer = repository.findByUser_id(currentUser.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         developer.languages.addAll(updates);
         return repository.save(developer);
@@ -124,12 +128,10 @@ public class DeveloperController {
     public @ResponseBody Developer updateDeveloper(@RequestBody Developer updates) {
         User currentUser = userService.getCurrentUser();
 
-        if(currentUser == null) {
+        if (currentUser == null) {
             return null;
         }
-
-        Developer developer =
-                repository.findByUser_id(currentUser.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Developer developer = repository.findByUser_id(currentUser.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
 //        updates.setId(developer.getId());
 //        return repository.save(updates);
@@ -145,13 +147,11 @@ public class DeveloperController {
     public ResponseEntity<String> destroyDeveloper() {
         User currentUser = userService.getCurrentUser();
 
-        if(currentUser == null) {
+        if (currentUser == null) {
             return null;
         }
-
         repository.deleteByUser_id(currentUser.getId());
         return new ResponseEntity<>("Deleted", HttpStatus.OK);
     }
-
 
 }

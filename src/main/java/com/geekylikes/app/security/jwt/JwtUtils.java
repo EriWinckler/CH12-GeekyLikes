@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
 import java.util.Date;
 
 @Component
@@ -19,8 +17,8 @@ public class JwtUtils {
     @Value("${geekylikes.app.jwtSecret}")
     private String jwtSecret;
 
-//    @Value("{geekylikes.app.jwtExpirationMs}")
-//    private int jwtExpirationMs;
+//    @Value("${geekylikes.app.jwtExpirationMs}")
+//    private int jwtExpirationMs
 
     public boolean validateJwtToken(String authToken) {
         try {
@@ -37,14 +35,12 @@ public class JwtUtils {
         } catch (IllegalArgumentException e) {
             logger.error("JWT Claims string is empty: {}", e.getMessage());
         }
-//        catch (Exception e) {
-//            catch all that was not previously specified
         return false;
     }
 
     public String generateJwtToken(Authentication authentication) {
-        UserDetailsImpl userPrincipal =
-                (UserDetailsImpl) authentication.getPrincipal();
+        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+
         return Jwts.builder()
                 .setSubject(userPrincipal.getUsername())
                 .setIssuedAt(new Date())
@@ -54,10 +50,7 @@ public class JwtUtils {
     }
 
     public String getUsernameFromJwtToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(jwtSecret)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
+
 }

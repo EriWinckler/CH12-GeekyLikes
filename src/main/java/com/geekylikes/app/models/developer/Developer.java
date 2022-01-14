@@ -47,9 +47,27 @@ public class Developer {
     private Avatar avatar;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "users_id", referencedColumnName = "id")
     @JsonIgnore
     private User user;
+
+    @ManyToMany()
+    @JoinTable(
+            name="relationship",
+            joinColumns = @JoinColumn(name="originator_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name="recipient_id", referencedColumnName = "id")
+    )
+    @JsonIgnore
+    private Set<Developer> relationships;
+
+    @ManyToMany()
+    @JoinTable(
+            name="relationship",
+            joinColumns = @JoinColumn(name="recipient_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name="originator_id", referencedColumnName = "id")
+    )
+    @JsonIgnore
+    private Set<Developer> inverseRelationShips;
 
     public Developer() {}
 
@@ -57,14 +75,6 @@ public class Developer {
         this.name = name;
         this.email = email;
         this.cohort = cohort;
-        this.user = user;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
         this.user = user;
     }
 
@@ -108,19 +118,35 @@ public class Developer {
         return languages;
     }
 
-//    public List<Geekout> getGeekouts() {
-//        return geekouts;
-//    }
-//
-//    public void setGeekouts(List<Geekout> geekouts) {
-//        this.geekouts = geekouts;
-//    }
-
     public Avatar getAvatar() {
         return avatar;
     }
 
     public void setAvatar(Avatar avatar) {
         this.avatar = avatar;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Set<Developer> getRelationships() {
+        return relationships;
+    }
+
+    public void setRelationships(Set<Developer> relationships) {
+        this.relationships = relationships;
+    }
+
+    public Set<Developer> getInverseRelationShips() {
+        return inverseRelationShips;
+    }
+
+    public void setInverseRelationShips(Set<Developer> inverseRelationShips) {
+        this.inverseRelationShips = inverseRelationShips;
     }
 }

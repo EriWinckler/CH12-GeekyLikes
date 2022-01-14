@@ -3,8 +3,8 @@ package com.geekylikes.app.controllers;
 import com.geekylikes.app.models.auth.ERole;
 import com.geekylikes.app.models.auth.Role;
 import com.geekylikes.app.models.auth.User;
-import com.geekylikes.app.payloads.requests.LoginRequest;
-import com.geekylikes.app.payloads.requests.SignupRequest;
+import com.geekylikes.app.payloads.request.LoginRequest;
+import com.geekylikes.app.payloads.request.SignupRequest;
 import com.geekylikes.app.payloads.response.JwtResponse;
 import com.geekylikes.app.payloads.response.MessageResponse;
 import com.geekylikes.app.repositories.RoleRepository;
@@ -54,16 +54,14 @@ public class AuthController {
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails
-                .getAuthorities()
-                .stream()
+        List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(new JwtResponse(
-                jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                roles));
+
+        return ResponseEntity.ok(new JwtResponse(jwt,
+                                                 userDetails.getId(),
+                                                 userDetails.getUsername(),
+                                                 roles));
     }
 
     @PostMapping("/signup")
@@ -71,36 +69,36 @@ public class AuthController {
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Email already in use " +
-                            "please login or reset password"));
+                    .body(new MessageResponse("Error: Email already in use please login or reset password"));
         }
 
-        //create new account
-        User user = new User(signupRequest.getUsername(),
-                encoder.encode(signupRequest.getPassword()));
-
+        // create new account
+        User user = new User(signupRequest.getUsername(), encoder.encode(signupRequest.getPassword()));
         Set<String> strRoles = signupRequest.getRoles();
         Set<Role> roles = new HashSet<>();
 
         if (strRoles == null) {
-            Role userRole =
-                    roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+            Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
-                switch (role) {
+                switch(role) {
                     case "admin":
-                        Role adminRole =
-                                roleRepository.findByName(ERole.ROLE_ADMIN).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                        break;
+                    case "administrator":
+                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                        roles.add(adminRole);
 
+                        break;
                     case "mod":
-                        Role modRole =
-                                roleRepository.findByName(ERole.ROLE_MODERATOR).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                        break;
+                    case "moderator":
+                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                        roles.add(modRole);
 
-                    case "user":
+                        break;
+                    default:
                         Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                        roles.add(userRole);
+
                         break;
                 }
             });
@@ -109,7 +107,7 @@ public class AuthController {
         user.setRoles(roles);
         userRepository.save(user);
 
-        return new ResponseEntity(new MessageResponse("User registered " +
-                "sucessfully"), HttpStatus.CREATED);
+        return new ResponseEntity(new MessageResponse("User registered successfully"), HttpStatus.CREATED);
     }
+
 }
